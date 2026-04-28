@@ -17,19 +17,23 @@ export function setToken(token) {
  * @param {RequestInit & { json?: object }} options
  */
 export async function api(path, options = {}) {
-  // Em produção a requisição precisa ir ao Heroku, não ao próprio Netlify.
+  // Em produção a requisição tem de ir à API (Heroku), não ao site estático (Netlify, GitHub Pages, etc.)
   const baseEnv = (import.meta.env.VITE_API_URL || '').toString().trim()
   if (path.startsWith('/api') && !import.meta.env.DEV) {
     if (!baseEnv) {
       throw new Error(
-        'Falta configurar: defina VITE_API_URL no Netlify com a URL da API no Heroku (…herokuapp.com, sem / no fim) e faça o deploy de novo.',
+        'Falta VITE_API_URL: no build (GitHub Actions, Netlify, etc.) defina a URL da API no Heroku (ex.: https://nomedapp.herokuapp.com, sem / no fim) e volte a publicar o site.',
       )
     }
     try {
       const u = new URL(baseEnv)
-      if (u.hostname.endsWith('netlify.app') && !u.hostname.includes('herokuapp.com')) {
+      const host = u.hostname
+      if (
+        (host.endsWith('netlify.app') || host === 'github.io' || host.endsWith('.github.io')) &&
+        !host.includes('herokuapp.com')
+      ) {
         throw new Error(
-          'VITE_API_URL não pode ser o endereço do site (Netlify). Coloque a URL do backend no Heroku, por exemplo: https://o-nome-da-sua-app.herokuapp.com (veja no painel da Heroku → Open app / Settings → Domains).',
+          'VITE_API_URL não pode ser o endereço do site estático. Use a URL do backend no Heroku, ex.: https://nomedapp.herokuapp.com (Heroku → Open app / Settings).',
         )
       }
     } catch (e) {
@@ -66,7 +70,7 @@ export async function api(path, options = {}) {
 
   if (res.ok && typeof data === 'string' && /^\s*</.test(data)) {
     throw new Error(
-      'A API devolveu HTML em vez de JSON. No Netlify, defina VITE_API_URL com a URL do Heroku e faça um novo build.',
+      'A API devolveu HTML em vez de JSON. Confira o VITE_API_URL (URL do Heroku) no processo de build e faça um novo deploy do front.',
     )
   }
 
@@ -79,7 +83,7 @@ export async function api(path, options = {}) {
       throw new Error(
         detail && detail !== 'Not Found'
           ? String(detail)
-          : 'API não encontrada (404). Confira o VITE_API_URL no Netlify e se a API no Heroku está no ar.',
+          : 'API não encontrada (404). Confira o VITE_API_URL (URL do Heroku no build) e se a API no Heroku está no ar.',
       )
     }
     throw new Error(detail || `Erro ${res.status}`)
