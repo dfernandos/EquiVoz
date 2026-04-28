@@ -1,5 +1,8 @@
-# Hospeda o build do Vite no GitHub Pages. Defina a variável ou o segredo VITE_API_URL (URL Heroku, sem / no fim)
-# e, no Heroku, CORS com https://<usuario>.github.io
+# Hospeda o build do Vite no GitHub Pages.
+# - VITE_API_URL: segredo/variável do repositório OU variável num GitHub "Environment"
+#   Se VITE estiver noutro ambiente que não "github-pages", defina a variável de repositório
+#   GHA_VITE_GITHUB_ENV = nome_desse_ambiente (ex.: equivoz).
+# - CORS no Heroku: https://<usuario>.github.io
 name: Deploy GitHub Pages (front-end)
 
 on:
@@ -22,9 +25,11 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    # Necessário para `vars`/`secrets` de VITE_API_URL no ambiente github-pages (e não só variáveis do repositório)
+    # `vars`/`secrets` de VITE_API_URL dependem do Environment. Por defeito usamos o ambiente
+    # "github-pages". Se tiveres VITE só noutro ambiente (ex. "equivoz"), defina a variável de
+    # repositório GHA_VITE_GITHUB_ENV com esse nome (a variável tem de existir a nível de repositório).
     environment:
-      name: github-pages
+      name: ${{ vars.GHA_VITE_GITHUB_ENV || 'github-pages' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -41,7 +46,7 @@ jobs:
           VITE_CHECK: ${{ secrets.VITE_API_URL || vars.VITE_API_URL }}
         run: |
           if [ -z "${VITE_CHECK:-}" ] || [ "${VITE_CHECK}" = "" ]; then
-            echo '::error::Defina VITE_API_URL: Settings → Secrets and variables → Actions → (segredo ou variável do repositório) com a URL do Heroku (ex.: https://nomedapp.herokuapp.com, sem / no fim), ou crie a variável no ambiente "github-pages".'
+            echo '::error::Defina VITE_API_URL: Settings → Actions → (segredo ou variável do repositório) com a URL do Heroku, ou crie a variável no teu ambiente. Se o VITE estiver num ambiente (ex. equivoz) e não for "github-pages", cria a variável de repositório GHA_VITE_GITHUB_ENV = nome_esse_ambiente. URL sem / no fim.' 
             exit 1
           fi
 
