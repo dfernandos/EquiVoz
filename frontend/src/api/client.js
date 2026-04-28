@@ -17,15 +17,27 @@ export function setToken(token) {
  * @param {RequestInit & { json?: object }} options
  */
 export async function api(path, options = {}) {
-  // Em produção (ex.: Netlify) o pedido tem de ir ao Heroku. Sem VITE_API_URL, /api/... cai no site estático (404 / HTML).
-  if (
-    path.startsWith('/api') &&
-    !import.meta.env.DEV &&
-    !(import.meta.env.VITE_API_URL || '').toString().trim()
-  ) {
-    throw new Error(
-      'Configuração em falta: defina a variável VITE_API_URL no Netlify (URL da API no Heroku, sem barra no fim) e volte a fazer o deploy do site.',
-    )
+  // Em produção o pedido tem de ir ao Heroku, não ao próprio Netlify.
+  const baseEnv = (import.meta.env.VITE_API_URL || '').toString().trim()
+  if (path.startsWith('/api') && !import.meta.env.DEV) {
+    if (!baseEnv) {
+      throw new Error(
+        'Configuração em falta: defina VITE_API_URL no Netlify com a URL da API no Heroku (…herokuapp.com, sem / no fim) e volte a fazer o deploy.',
+      )
+    }
+    try {
+      const u = new URL(baseEnv)
+      if (u.hostname.endsWith('netlify.app') && !u.hostname.includes('herokuapp.com')) {
+        throw new Error(
+          'VITE_API_URL não pode ser o endereço do site (Netlify). Coloque a URL do backend no Heroku, por exemplo: https://o-nome-da-sua-app.herokuapp.com (vê no dashboard da Heroku → Open app / Settings → Domains).',
+        )
+      }
+    } catch (e) {
+      if (e instanceof TypeError) {
+        throw new Error('VITE_API_URL inválida. Use um endereço completo, ex.: https://minha-api.herokuapp.com')
+      }
+      throw e
+    }
   }
 
   const { json, ...fetchOpts } = options

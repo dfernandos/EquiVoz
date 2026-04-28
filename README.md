@@ -182,7 +182,7 @@ O repositório inclui `netlify.toml` na **raiz**: o *build* corre em `frontend/`
 No painel do Netlify → **Environment variables** → **Add a variable**:
 
 - **Key:** `VITE_API_URL`
-- **Value:** a URL pública do Heroku, ex.: `https://equivoz-0d910705aa02.herokuapp.com` (a tua app; **sem** barra no fim)
+- **Value:** a URL **da API no Heroku** (termina em **`.herokuapp.com`**). Ex.: `https://equivoz-0d910705aa02.herokuapp.com`. **Não** coloques aqui o endereço do site (`https://…netlify.app`) — isso faz o site chamar a si próprio e dá 404 / CORS.
 
 **Muito importante:** a variável `VITE_API_URL` tem de existir no **âmbito** em que fazes o build. Se abrires o site com um endereço de *Deploy Preview* (`https://xxxxx--equivoz.netlify.app`) mas só definires `VITE_API_URL` em *Production*, o *preview* pode ser construído **sem** a URL do Heroku e o browser continuará a chamar `...netlify.app/api/...` (erro 404 / *Failed to fetch*). **Solução:** no Netlify, em *Environment variables*, seleciona **“Same value for all deploys”** ou adiciona `VITE_API_URL` para **Deploy Previews** e **Branch deploys** com o **mesmo** valor da API no Heroku.
 
