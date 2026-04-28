@@ -4,6 +4,15 @@ import { api } from '../api/client'
 import DashboardPanel from '../components/DashboardPanel'
 import { useAuth } from '../hooks/useAuth'
 
+const DASHBOARD_VAZIO = {
+  total: 0,
+  com_localizacao_mapa: 0,
+  minhas: 0,
+  por_tipo: [],
+  por_mes: [],
+  top_empresas: [],
+}
+
 export default function Home() {
   const loggedIn = useAuth()
   const [dashboard, setDashboard] = useState(null)
@@ -32,7 +41,9 @@ export default function Home() {
     }
   }, [loggedIn])
 
-  const topEmpresas = Array.isArray(dashboard?.top_empresas) ? dashboard.top_empresas : []
+  /** Sempre mostra o layout do painel: dados reais da API ou estrutura vazia (ex.: visitante, falha de rede, CORS). */
+  const dadosVisiveis = dashboard ?? DASHBOARD_VAZIO
+  const topEmpresas = Array.isArray(dadosVisiveis.top_empresas) ? dadosVisiveis.top_empresas : []
   const minhas = dashboard?.minhas ?? 0
 
   return (
@@ -75,19 +86,19 @@ export default function Home() {
 
       {loading ? <p className="muted">Carregando o painel…</p> : null}
 
-      {!loading && !error && dashboard ? (
+      {!loading ? (
         <>
-          {loggedIn && minhas > 0 ? (
+          {loggedIn && dashboard && minhas > 0 ? (
             <p className="dashboard-inline-summary muted">
               Sua contagem: <strong>{minhas}</strong>{' '}
               {minhas === 1 ? 'denúncia registrada' : 'denúncias registradas'} por você.
             </p>
           ) : null}
-          <DashboardPanel data={dashboard} showPersonalKpi={loggedIn} />
+          <DashboardPanel data={dadosVisiveis} showPersonalKpi={loggedIn} />
         </>
       ) : null}
 
-      {!loading && !error && dashboard && (
+      {!loading && (
         <section
           className="dashboard-section dashboard-section--table"
           aria-label="Tabela de estabelecimentos com mais registro de denúncias"

@@ -75,17 +75,19 @@ export default function DashboardPanel({ data, showPersonalKpi = true }) {
     }
   }, [isDaltonismo])
 
-  if (!data) return null
+  if (data == null) return null
 
-  const mapaOutros = Math.max(0, data.total - data.com_localizacao_mapa)
+  const totalGeral = data.total ?? 0
+  const comMapa = data.com_localizacao_mapa ?? 0
+  const mapaOutros = Math.max(0, totalGeral - comMapa)
   const mapaPizza = [
-    { name: 'Com local no mapa', value: data.com_localizacao_mapa, key: 'mapa' },
+    { name: 'Com local no mapa', value: comMapa, key: 'mapa' },
     { name: 'Só registro (sem pin)', value: mapaOutros, key: 'sem' },
   ]
 
   const barrasTipo = (data.por_tipo || []).map((t) => ({
-    nome: t.label.length > 22 ? `${t.label.slice(0, 20)}…` : t.label,
-    nomeFull: t.label,
+    nome: (t.label || '').length > 22 ? `${(t.label || '').slice(0, 20)}…` : (t.label || ''),
+    nomeFull: t.label || '',
     ocorrencias: t.count,
   }))
 
@@ -99,7 +101,7 @@ export default function DashboardPanel({ data, showPersonalKpi = true }) {
       <div className="dashboard-kpi-grid" role="group" aria-label="Resumo em números">
         <div className="dashboard-kpi">
           <span className="dashboard-kpi-label">Total no sistema</span>
-          <strong className="dashboard-kpi-value">{data.total}</strong>
+          <strong className="dashboard-kpi-value">{totalGeral}</strong>
           <span className="dashboard-kpi-hint">denúncias</span>
         </div>
         {showPersonalKpi ? (
@@ -111,14 +113,14 @@ export default function DashboardPanel({ data, showPersonalKpi = true }) {
         ) : null}
         <div className="dashboard-kpi">
           <span className="dashboard-kpi-label">No mapa</span>
-          <strong className="dashboard-kpi-value">{data.com_localizacao_mapa}</strong>
+            <strong className="dashboard-kpi-value">{comMapa}</strong>
           <span className="dashboard-kpi-hint">com latitude e longitude</span>
         </div>
         <div className="dashboard-kpi dashboard-kpi--accent">
           <span className="dashboard-kpi-label">Cobertura do mapa</span>
           <strong className="dashboard-kpi-value">
-            {data.total > 0
-              ? `${Math.round((100 * data.com_localizacao_mapa) / data.total)}%`
+            {totalGeral > 0
+              ? `${Math.round((100 * comMapa) / totalGeral)}%`
               : '—'}
           </strong>
           <span className="dashboard-kpi-hint">dos relatos com pin</span>
@@ -202,7 +204,7 @@ export default function DashboardPanel({ data, showPersonalKpi = true }) {
 
         <div className="dashboard-chart-card dashboard-chart-card--pie">
           <h3 className="dashboard-chart-title">Mapa: com pin vs. só registro</h3>
-          {data.total === 0 ? (
+          {totalGeral === 0 ? (
             <p className="dashboard-chart-empty muted">Nenhum dado ainda.</p>
           ) : (
             <div
@@ -230,7 +232,7 @@ export default function DashboardPanel({ data, showPersonalKpi = true }) {
                     contentStyle={{ borderRadius: 8, border: `1px solid ${uiBorder}` }}
                     formatter={(value, name) => {
                       const n = Number(value)
-                      const t = data.total
+                      const t = totalGeral
                       const pct = t > 0 ? ` (${((n / t) * 100).toFixed(0)}% do total)` : ''
                       return [
                         `${n} ocorrência${n === 1 ? '' : 's'}${pct}`,
