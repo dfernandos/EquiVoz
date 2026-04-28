@@ -113,8 +113,8 @@ def esqueci_senha():
         url = _forgot_password_url(raw)
         try:
             send_password_reset_email(user.email, user.name, url)
-        except OSError as e:
-            _log.exception("Falha ao enviar e-mail de redefinição: %s", e)
+        except Exception:  # noqa: BLE001 — registo de falhas SMTP/ rede sem expor ao cliente
+            _log.exception("Falha ao enviar e-mail de redefinição (ver Heroku logs / Brevo SMTP).")
     return jsonify(detail=_MSG_ESQUECI), 200
 
 
