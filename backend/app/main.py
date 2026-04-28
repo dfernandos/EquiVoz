@@ -1,6 +1,7 @@
+import logging
 import os
 
-from flask import Flask, g, jsonify
+from flask import Flask, g, jsonify, request
 from flask_cors import CORS
 from sqlalchemy import inspect, text
 
@@ -8,6 +9,8 @@ from app.config import settings
 from app.database import Base, get_engine, get_session_factory
 from app.deps import ApiError
 from app.routers import auth, denuncias, geocoding
+
+_log = logging.getLogger(__name__)
 
 
 def _cors_allowed_origins() -> list:
@@ -106,14 +109,24 @@ def create_app(database_url: str | None = None) -> Flask:
 
     app = Flask(__name__)
 
+    if os.environ.get("DYNO") and not (settings.cors_origins and str(settings.cors_origins).strip()):
+        _log.warning(
+            "CORS_ORIGINS vazio no Heroku. Defina, por ex.: CORS_ORIGINS=https://equivoz.netlify.app "
+            "(e URLs de deploy preview, se precisar). Sem isso, o Netlify leva CORS/Failed to fetch."
+        )
+
     CORS(
         app,
-        resources={r"/api/*": {"origins": _cors_allowed_origins()}},
+        resources={r"/api/*": {"origins": _cors_allowed_origins(), "allow_headers": ["Content-Type", "Authorization"]}},
         supports_credentials=True,
     )
 
     @app.before_request
     def open_db_session():
+        # Pré-requisito CORS (OPTIONS) não precisa de sessão SQLA — abrir a DB aqui
+        # pode atrasar o preflight (Neon a “acordar”, piscina de ligações) e gerar 503/timeout.
+        if request.method == "OPTIONS":
+            return
         g.db = get_session_factory()()
 
     @app.teardown_request
