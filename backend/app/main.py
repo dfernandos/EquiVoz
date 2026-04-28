@@ -2,9 +2,27 @@ from flask import Flask, g, jsonify
 from flask_cors import CORS
 from sqlalchemy import inspect, text
 
+from app.config import settings
 from app.database import Base, get_engine, get_session_factory
 from app.deps import ApiError
 from app.routers import auth, denuncias, geocoding
+
+
+def _cors_allowed_origins() -> list:
+    locais = [
+        "http://localhost:5173",
+        "http://localhost:8081",
+        "http://127.0.0.1:5173",
+        "http://127.0.0.1:8081",
+    ]
+    extra = settings.cors_origins
+    if not (extra and str(extra).strip()):
+        return locais
+    for parte in str(extra).split(","):
+        p = parte.strip()
+        if p:
+            locais.append(p)
+    return list(dict.fromkeys(locais))
 
 
 def _ensure_user_email_verification_columns(engine) -> None:
@@ -61,7 +79,7 @@ def create_app(database_url: str | None = None) -> Flask:
 
     CORS(
         app,
-        resources={r"/api/*": {"origins": ["http://localhost:5173", "http://localhost:8081", "http://127.0.0.1:5173", "http://127.0.0.1:8081"]}},
+        resources={r"/api/*": {"origins": _cors_allowed_origins()}},
         supports_credentials=True,
     )
 

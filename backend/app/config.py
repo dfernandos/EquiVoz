@@ -19,6 +19,9 @@ class Settings(BaseSettings):
     verificacao_email_horas: int = 48
     # Só em desenvolvimento: imprime o link de verificação se SMTP não estiver definido
     log_link_verificacao_se_sem_smtp: bool = False
+    # Origens extra para CORS (separadas por vírgula), ex.: o site no Netlify e deploy previews
+    # https://equivoz.netlify.app,https://xxxxx--equivoz.netlify.app
+    cors_origins: str | None = None
 
     @field_validator("database_url", mode="before")
     @classmethod

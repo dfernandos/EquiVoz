@@ -167,7 +167,13 @@ O repositório tem na **raiz** `requirements.txt`, `.python-version` e `Procfile
 2. Na app Heroku: adicionar o extra **Heroku Postgres** (ou definir `DATABASE_URL` manualmente). O Heroku injeta `DATABASE_URL` (muitas vezes `postgres://...`); a aplicação já normaliza para o SQLAlchemy.
 3. Definir variáveis, por exemplo:
    - `heroku config:set SECRET_KEY="um-segredo-longo-e-aleatório"`
-4. Ajustar **CORS** no código para o domínio do teu site em produção (ver secção seguinte); o front-end em static hosting pode ser feito à parte com `npm run build` e `VITE_API_URL` apontando para `https://<a-tua-app>.herokuapp.com`.
+4. **CORS** (obrigatório: o site Netlify e a API Heroku têm domínios diferentes). Na app Heroku:
+   ```text
+   heroku config:set CORS_ORIGINS="https://equivoz.netlify.app,https://O_HASH--equivoz.netlify.app" -a NOME-DA-APP
+   ```
+   - Inclui a URL de **produção** do Netlify (`https://equivoz.netlify.app` ou o teu).
+   - Inclui também o URL de **Deploy Preview** (o que tem `--` no meio) se usares *branch deploys* / *PR previews* — podes ir acrescentando ou definir a variável com os dois de uma vez (copia o *preview* a partir da barra de endereço quando o build de *preview* abre).
+5. Faz *deploy* de novo da API após alterar `CORS_ORIGINS`.
 
 ### Netlify (só o front-end)
 
@@ -178,7 +184,9 @@ No painel do Netlify → **Environment variables** → **Add a variable**:
 - **Key:** `VITE_API_URL`
 - **Value:** a URL pública do Heroku, ex.: `https://equivoz-0d910705aa02.herokuapp.com` (a tua app; **sem** barra no fim)
 
-**Site configuration → Build & deploy →** confirma que a variável está em *Production* (e *Preview* se usares) e força **Deploys → Trigger deploy → Clear cache and deploy**. O Vite só incorpora `VITE_` no *build*; alterar a variável sem novo deploy não basta.
+**Muito importante:** a variável `VITE_API_URL` tem de existir no **âmbito** em que fazes o build. Se abrires o site com um endereço de *Deploy Preview* (`https://xxxxx--equivoz.netlify.app`) mas só definires `VITE_API_URL` em *Production*, o *preview* pode ser construído **sem** a URL do Heroku e o browser continuará a chamar `...netlify.app/api/...` (erro 404 / *Failed to fetch*). **Solução:** no Netlify, em *Environment variables*, seleciona **“Same value for all deploys”** ou adiciona `VITE_API_URL` para **Deploy Previews** e **Branch deploys** com o **mesmo** valor da API no Heroku.
+
+**Site configuration → Build & deploy →** força **Deploys → Clear cache and deploy** após qualquer alteração. O Vite só incorpora `VITE_` no *build*.
 
 Comando local equivalente ao dyno: `gunicorn --chdir backend wsgi:app --bind 0.0.0.0:8000` (o Heroku usa a variável `PORT` automaticamente no `Procfile`).
 
@@ -188,7 +196,7 @@ Comando local equivalente ao dyno: `gunicorn --chdir backend wsgi:app --bind 0.0
 
 - Nunca comite ficheiro **`.env`** com segredos reais (use `.env.example` só como modelo).
 - Em **produção**, use `SECRET_KEY` forte, HTTPS, e PostgreSQL (ou outro SGBD suportado) com cópia de segurança.
-- CORS na API (em `app/main.py`) restringe origens de desenvolvimento; em deploy, ajuste para o(s) domínio(s) do site.
+- CORS: use a variável `CORS_ORIGINS` no Heroku (ou `.env` local) com a lista de URL do front; o `main.py` junta isso com `localhost` para desenvolvimento.
 
 ---
 
