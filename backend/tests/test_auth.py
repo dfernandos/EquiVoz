@@ -93,3 +93,64 @@ def test_login_rejects_wrong_password(client):
     )
     assert r.status_code == 401
     assert r.get_json()["detail"] == "E-mail ou senha incorretos"
+
+
+def test_esqueci_senha_resposta_igual_email_desconhecido(client):
+    r = client.post("/api/auth/esqueci-senha", json={"email": "naoexiste@test.com"})
+    assert r.status_code == 200
+    d1 = r.get_json()["detail"]
+    assert "e-mail" in d1.lower() or "conta" in d1.lower()
+    assert (
+        client.post(
+            "/api/auth/register",
+            json={"email": "esq@test.com", "password": "secret12", "name": "E"},
+        ).status_code
+        == 201
+    )
+    r2 = client.post("/api/auth/esqueci-senha", json={"email": "esq@test.com"})
+    assert r2.status_code == 200
+    assert r2.get_json()["detail"] == d1
+
+
+def test_redefinir_senha_fluxo_completo(client):
+    from unittest.mock import patch
+
+    assert (
+        client.post(
+            "/api/auth/register",
+            json={"email": "reset@test.com", "password": "oldpass12", "name": "R"},
+        ).status_code
+        == 201
+    )
+    raw = "x" * 43
+    with patch("app.routers.auth.secrets.token_urlsafe", return_value=raw):
+        assert client.post("/api/auth/esqueci-senha", json={"email": "reset@test.com"}).status_code == 200
+
+    r = client.post(
+        "/api/auth/redefinir-senha",
+        json={"token": raw, "password": "newpass99"},
+    )
+    assert r.status_code == 200
+    assert (
+        client.post(
+            "/api/auth/login",
+            json={"email": "reset@test.com", "password": "oldpass12"},
+        ).status_code
+        == 401
+    )
+    assert (
+        client.post(
+            "/api/auth/login",
+            json={"email": "reset@test.com", "password": "newpass99"},
+        ).status_code
+        == 200
+    )
+
+
+def test_redefinir_senha_token_invalido(client):
+    r = client.post(
+        "/api/auth/redefinir-senha",
+        json={"token": "token-invalido-que-nao-existe", "password": "newpass12"},
+    )
+    assert r.status_code == 400
+    assert "expirado" in r.get_json()["detail"].lower() or "inválido" in r.get_json()["detail"].lower()

@@ -33,6 +33,15 @@ class LoginRequest(BaseModel):
     password: str
 
 
+class EsqueciSenhaRequest(BaseModel):
+    email: EmailStr
+
+
+class RedefinirSenhaRequest(BaseModel):
+    token: str = Field(min_length=10, max_length=200)
+    password: str = Field(min_length=6, max_length=200)
+
+
 class DenunciaCreate(BaseModel):
     title: str = Field(min_length=3, max_length=500)
     description: str = Field(min_length=10)

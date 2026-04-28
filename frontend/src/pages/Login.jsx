@@ -67,6 +67,10 @@ export default function Login() {
       </form>
 
       <p className="muted small">
+        <Link to="/esqueci-senha">Esqueci a senha</Link>
+      </p>
+
+      <p className="muted small">
         Não tem conta? <Link to="/cadastro">Cadastre-se</Link>
       </p>
     </div>

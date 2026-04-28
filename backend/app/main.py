@@ -60,6 +60,23 @@ def _ensure_user_email_verification_columns(engine) -> None:
                 conn.execute(text("UPDATE users SET email_verified = true"))
 
 
+def _ensure_password_reset_columns(engine) -> None:
+    if "users" not in inspect(engine).get_table_names():
+        return
+    cols = {c["name"] for c in inspect(engine).get_columns("users")}
+    is_sqlite = engine.dialect.name == "sqlite"
+    with engine.begin() as conn:
+        if "password_reset_token_hash" not in cols:
+            conn.execute(text("ALTER TABLE users ADD COLUMN password_reset_token_hash VARCHAR(64)"))
+        if "password_reset_expires_at" not in cols:
+            if is_sqlite:
+                conn.execute(text("ALTER TABLE users ADD COLUMN password_reset_expires_at DATETIME"))
+            else:
+                conn.execute(
+                    text("ALTER TABLE users ADD COLUMN password_reset_expires_at TIMESTAMPTZ")
+                )
+
+
 def create_app(database_url: str | None = None) -> Flask:
     if database_url is not None:
         from app.database import configure_engine
@@ -68,6 +85,7 @@ def create_app(database_url: str | None = None) -> Flask:
     engine = get_engine()
     Base.metadata.create_all(bind=engine)
     _ensure_user_email_verification_columns(engine)
+    _ensure_password_reset_columns(engine)
     if engine.dialect.name == "sqlite":
         with engine.begin() as conn:
             r = conn.execute(text("PRAGMA table_info(denuncias)"))

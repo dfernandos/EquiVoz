@@ -4,8 +4,10 @@ import './App.css'
 import Layout from './components/Layout'
 import Denuncia from './pages/Denuncia'
 import DenunciasMapa from './pages/DenunciasMapa'
+import EsqueciSenha from './pages/EsqueciSenha'
 import Home from './pages/Home'
 import Login from './pages/Login'
+import RedefinirSenha from './pages/RedefinirSenha'
 import Register from './pages/Register'
 import Sobre from './pages/Sobre'
 
@@ -22,6 +24,8 @@ export default function App() {
         <Route path="/" element={<Home />} />
         <Route path="/sobre" element={<Sobre />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/esqueci-senha" element={<EsqueciSenha />} />
+        <Route path="/redefinir-senha" element={<RedefinirSenha />} />
         <Route path="/cadastro" element={<Register />} />
         <Route
           path="/denuncia"

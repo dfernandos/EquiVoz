@@ -17,6 +17,8 @@ class User(Base):
     email_verified: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     verification_token_hash: Mapped[str | None] = mapped_column(String(64), nullable=True)
     verification_token_expires_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    password_reset_token_hash: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    password_reset_expires_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
     denuncias: Mapped[list["Denuncia"]] = relationship("Denuncia", back_populates="user")
 
