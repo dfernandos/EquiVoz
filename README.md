@@ -156,9 +156,9 @@ O workflow **CI EquiVoz** (`.github/workflows/ci.yml`) corre em *push* e *pull r
 
 ## Deploy no Heroku (API / backend)
 
-O repositório tem na **raiz** `requirements.txt`, `runtime.txt` e `Procfile` para o *buildpack* Python do Heroku detetar a app; o código continua em `backend/`.
+O repositório tem na **raiz** `requirements.txt`, `.python-version` e `Procfile` para o *buildpack* Python do Heroku detetar a app; o código continua em `backend/`.
 
-1. **Comitar e enviar** estes ficheiros: `requirements.txt`, `runtime.txt`, `Procfile`, `backend/wsgi.py`.
+1. **Comitar e enviar** estes ficheiros: `requirements.txt`, `.python-version`, `Procfile`, `backend/wsgi.py`.
 2. Na app Heroku: adicionar o extra **Heroku Postgres** (ou definir `DATABASE_URL` manualmente). O Heroku injeta `DATABASE_URL` (muitas vezes `postgres://...`); a aplicação já normaliza para o SQLAlchemy.
 3. Definir variáveis, por exemplo:
    - `heroku config:set SECRET_KEY="um-segredo-longo-e-aleatório"`
