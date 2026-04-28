@@ -1,4 +1,4 @@
-/* eslint-disable react-refresh/only-export-components -- provider e hook no mesmo ficheiro */
+/* eslint-disable react-refresh/only-export-components -- provider e hook no mesmo arquivo */
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 
 const STORAGE_KEY = 'equivoz_color_mode'

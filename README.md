@@ -79,7 +79,7 @@ cp .env.example .env
 | `ACCESS_TOKEN_EXPIRE_MINUTES` | Validade do token (em minutos). |
 | `CORS_ORIGINS` | Origens extras permitidas pelo CORS, separadas por vírgula (veja `.env.example`). |
 | `APP_PUBLIC_URL` | URL do site (ex.: `https://equivoz.netlify.app`, sem barra no fim) usada no **link de redefinir senha** enviado por e-mail. |
-| `SMTP_*`, `PASSWORD_RESET_TOKEN_HORAS`, `LOG_PASSWORD_RESET_LINK_SEM_SMTP` | Opcionais. **Esqueci a senha:** com SMTP preenchido, a API envia o link; sem SMTP, em produção o utilizador precisa de outro meio; em **dev** pode ativar `LOG_PASSWORD_RESET_LINK_SEM_SMTP=true` para ver a URL no log do servidor. |
+| `SMTP_*`, `PASSWORD_RESET_TOKEN_HORAS`, `LOG_PASSWORD_RESET_LINK_SEM_SMTP` | Opcionais. **Esqueci a senha:** com SMTP preenchido, a API envia o link; sem SMTP, em produção o usuário precisa de outro meio; em **dev** pode ativar `LOG_PASSWORD_RESET_LINK_SEM_SMTP=true` para ver a URL no log do servidor. |
 
 Após o **cadastro**, a conta fica ativa; o site mostra na página inicial uma **mensagem de confirmação** (sem envio de e-mail pela API; não há SMTP nem verificação por link).
 

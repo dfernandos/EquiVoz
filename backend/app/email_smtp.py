@@ -32,7 +32,7 @@ def _send_via_brevo_api(
     """Envio transacional via API REST (a mesma chave xkeysib- do painel, aba *Chaves de API*)."""
     payload = {
         "sender": {"name": "EquiVoz", "email": from_email},
-        "to": [{"email": to, "name": (user_name or "").strip() or "Utilizador"}],
+        "to": [{"email": to, "name": (user_name or "").strip() or "Usuário"}],
         "subject": "EquiVoz — redefinir senha",
         "textContent": text_body,
     }
@@ -64,7 +64,7 @@ def send_password_reset_email(to: str, user_name: str, reset_url: str) -> None:
     if api_key:
         if not from_addr:
             _log.error("Defina SMTP_FROM (e-mail remetente verificado no Brevo).")
-            raise ValueError("SMTP_FROM em falta")
+            raise ValueError("SMTP_FROM não definido")
         _send_via_brevo_api(to, user_name, from_addr, text_body, api_key)
         return
 
@@ -75,18 +75,18 @@ def send_password_reset_email(to: str, user_name: str, reset_url: str) -> None:
         return
 
     if not from_addr:
-        _log.error("smtp_from / smtp_user em falta; não é possível enviar e-mail.")
-        raise ValueError("SMTP_FROM em falta")
+        _log.error("smtp_from / smtp_user não definidos; não é possível enviar e-mail.")
+        raise ValueError("SMTP_FROM não definido")
 
     smtp_pwd = (settings.smtp_password or "").strip()
     if not smtp_pwd:
         _log.error("SMTP_PASSWORD vazio: use BREVO_API_KEY ou a chave SMTP do Brevo.")
-        raise ValueError("SMTP_PASSWORD não está definida")
+        raise ValueError("SMTP_PASSWORD não definida")
 
     u = (settings.smtp_user or "").strip()
     if not u:
-        _log.error("SMTP_USER em falta.")
-        raise ValueError("SMTP_USER não está definida")
+        _log.error("SMTP_USER não definido.")
+        raise ValueError("SMTP_USER não definido")
 
     msg = EmailMessage()
     msg["Subject"] = "EquiVoz — redefinir senha"

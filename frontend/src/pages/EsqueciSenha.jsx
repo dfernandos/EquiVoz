@@ -33,7 +33,7 @@ export default function EsqueciSenha() {
         <h1 id="page-title">Verifique o e-mail</h1>
         <p className="banner success" role="status" aria-live="polite">
           {mensagem ||
-            'Se existir uma conta com este e-mail, enviaremos as instruções para redefinir a senha.'}
+            'Se existir uma conta com este e-mail, enviaremos em breve as instruções para redefinir a senha.'}
         </p>
         <p className="muted small">Confira também a pasta de spam.</p>
         <p className="muted small">

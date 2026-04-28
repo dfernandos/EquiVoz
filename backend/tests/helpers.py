@@ -1,5 +1,5 @@
 def register_and_token(client, email="user@test.com", password="secret12", name="Test"):
-    """Cria utilizador, faz login e devolve o token JWT."""
+    """Cria usuário, faz login e devolve o token JWT."""
     r = client.post(
         "/api/auth/register",
         json={"email": email, "password": password, "name": name},

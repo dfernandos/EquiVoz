@@ -37,7 +37,7 @@ def get_current_user() -> User:
 
 
 def get_current_user_optional() -> User | None:
-    """Utilizador autenticado, ou None se não houver token / token inválido (sem lançar erro)."""
+    """Usuário autenticado, ou None se não houver token / token inválido (sem lançar erro)."""
     from flask import request
 
     token = get_bearer_token(request)

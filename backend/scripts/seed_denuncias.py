@@ -20,7 +20,7 @@ from app.main import create_app
 from app.models import Denuncia, User
 from app.violation_types import VIOLATION_LABELS
 
-# Pedido do utilizador: “Burguer” no nome do BK
+# Pedido: “Burguer” no nome do BK
 EMPRESAS_E_QUANTIDADE: list[tuple[str, int]] = [
     ("Habbibs", 8),
     ("McDonalds", 8),
@@ -111,7 +111,7 @@ def run() -> int:
     try:
         users = _get_or_create_seed_users(db)
         if not users:
-            print("Erro: nenhum utilizador seed.", file=sys.stderr)
+            print("Erro: nenhum usuário seed.", file=sys.stderr)
             return 1
         n = 0
         for empresa, q in EMPRESAS_E_QUANTIDADE:
@@ -133,7 +133,7 @@ def run() -> int:
                 n += 1
         db.commit()
         print(f"Inseridas {n} denúncias (empresas: {', '.join(e for e, _ in EMPRESAS_E_QUANTIDADE)}).")
-        print("Utilizadores de teste: seed1..seed4@equivoz.seed | senha: seedseed12")
+        print("Usuários de teste: seed1..seed4@equivoz.seed | senha: seedseed12")
     except Exception as e:
         db.rollback()
         print(f"Erro: {e}", file=sys.stderr)

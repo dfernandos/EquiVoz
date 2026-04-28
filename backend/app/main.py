@@ -90,7 +90,7 @@ def create_app(database_url: str | None = None) -> Flask:
         raise RuntimeError(
             "No Heroku o PostgreSQL é obrigatório. Adicione o add-on Heroku Postgres (recomendado) "
             "ou defina a variável DATABASE_URL com postgresql+psycopg://... ou postgresql://... . "
-            "O SQLite no disco do dyno apaga os dados a cada deploy."
+            "O SQLite no disco do dyno não persiste — os dados se perdem a cada deploy."
         )
 
     engine = get_engine()

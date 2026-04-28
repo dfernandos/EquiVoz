@@ -28,10 +28,16 @@ class Settings(BaseSettings):
     @field_validator("database_url", mode="before")
     @classmethod
     def normalize_database_url(cls, value: str) -> str:
-        """Aceita `postgres://` e normaliza para `postgresql://` (SQLAlchemy)."""
+        """Aceita `postgres://` e força o driver `psycopg` 3 (instalado no projeto).
+
+        `postgresql://` sozinho faz o SQLAlchemy tentar `psycopg2`, que **não** está no
+        requirements — o deploy no Heroku+Neon falhava a subir (503) ou a abrir a DB.
+        """
         s = str(value).strip()
         if s.startswith("postgres://"):
-            return "postgresql://" + s[len("postgres://") :]
+            s = "postgresql://" + s[len("postgres://") :]
+        if s.startswith("postgresql://") and not s.startswith("postgresql+psycopg"):
+            s = "postgresql+psycopg://" + s[len("postgresql://") :]
         return s
 
     class Config:

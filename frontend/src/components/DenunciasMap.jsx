@@ -22,13 +22,11 @@ const BR_CENTER = [-14.23, -51.93]
 const DEFAULT_Z = 4
 
 /**
- * Ajusta o mapa às posições ou exibe o Brasil.
+ * Ajusta o mapa às posições ou mostra o Brasil.
  * @param {{ id: string | number, position: [number, number] }[]} markers
  */
 function MapBounds({ markers }) {
   const map = useMap()
-  const key = markers.map((m) => `${m.id}:${m.position[0]}:${m.position[1]}`).join('|')
-
   useEffect(() => {
     const positions = markers.map((m) => m.position)
     if (positions.length === 0) {
@@ -41,7 +39,7 @@ function MapBounds({ markers }) {
     }
     const bounds = L.latLngBounds(positions)
     map.fitBounds(bounds, { padding: [40, 40] })
-  }, [map, key])
+  }, [map, markers])
 
   return null
 }

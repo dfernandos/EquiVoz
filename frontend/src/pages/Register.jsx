@@ -89,7 +89,7 @@ export default function Register() {
         />
 
         <button className="btn primary" type="submit" disabled={loading} aria-busy={loading}>
-          {loading ? 'A criar…' : 'Criar conta e entrar'}
+          {loading ? 'Criando…' : 'Criar conta e entrar'}
         </button>
       </form>
 

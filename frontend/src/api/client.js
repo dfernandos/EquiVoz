@@ -17,19 +17,19 @@ export function setToken(token) {
  * @param {RequestInit & { json?: object }} options
  */
 export async function api(path, options = {}) {
-  // Em produção o pedido tem de ir ao Heroku, não ao próprio Netlify.
+  // Em produção a requisição precisa ir ao Heroku, não ao próprio Netlify.
   const baseEnv = (import.meta.env.VITE_API_URL || '').toString().trim()
   if (path.startsWith('/api') && !import.meta.env.DEV) {
     if (!baseEnv) {
       throw new Error(
-        'Configuração em falta: defina VITE_API_URL no Netlify com a URL da API no Heroku (…herokuapp.com, sem / no fim) e volte a fazer o deploy.',
+        'Falta configurar: defina VITE_API_URL no Netlify com a URL da API no Heroku (…herokuapp.com, sem / no fim) e faça o deploy de novo.',
       )
     }
     try {
       const u = new URL(baseEnv)
       if (u.hostname.endsWith('netlify.app') && !u.hostname.includes('herokuapp.com')) {
         throw new Error(
-          'VITE_API_URL não pode ser o endereço do site (Netlify). Coloque a URL do backend no Heroku, por exemplo: https://o-nome-da-sua-app.herokuapp.com (vê no dashboard da Heroku → Open app / Settings → Domains).',
+          'VITE_API_URL não pode ser o endereço do site (Netlify). Coloque a URL do backend no Heroku, por exemplo: https://o-nome-da-sua-app.herokuapp.com (veja no painel da Heroku → Open app / Settings → Domains).',
         )
       }
     } catch (e) {
@@ -79,7 +79,7 @@ export async function api(path, options = {}) {
       throw new Error(
         detail && detail !== 'Not Found'
           ? String(detail)
-          : 'API não encontrada (404). Confirme VITE_API_URL no Netlify e se a API no Heroku está a correr.',
+          : 'API não encontrada (404). Confira o VITE_API_URL no Netlify e se a API no Heroku está no ar.',
       )
     }
     throw new Error(detail || `Erro ${res.status}`)

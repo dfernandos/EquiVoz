@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react'
+import { startTransition, useEffect, useState } from 'react'
 import { api } from '../api/client'
 import { useAuth } from './useAuth'
 
 /**
- * Dados do utilizador autenticado (a partir de /api/auth/me), ou null.
+ * Dados do usuário autenticado (a partir de /api/auth/me), ou null.
  */
 export function useUser() {
   const loggedIn = useAuth()
@@ -12,11 +12,13 @@ export function useUser() {
 
   useEffect(() => {
     if (!loggedIn) {
-      setUser(null)
       return
     }
     let cancelled = false
-    setLoading(true)
+    startTransition(() => {
+      setUser(null)
+      setLoading(true)
+    })
     api('/api/auth/me')
       .then((d) => {
         if (!cancelled && d && typeof d === 'object') setUser(d)
@@ -32,5 +34,5 @@ export function useUser() {
     }
   }, [loggedIn])
 
-  return { user, loading }
+  return { user: loggedIn ? user : null, loading: loggedIn && loading }
 }

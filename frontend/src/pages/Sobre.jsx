@@ -40,7 +40,7 @@ export default function Sobre() {
           O <strong>painel com estatísticas agregadas</strong> (totais, tendências por mês, tipos de
           violação e estabelecimentos com mais relatos) é <strong>público</strong> — qualquer pessoa
           pode consultá-lo na página inicial, sem precisar de conta. Já a <strong>lista completa e o
-          mapa</strong> das ocorrências ficam restritos a utilizadores autenticados, equilibrando
+          mapa</strong> das ocorrências ficam restritos a usuários autenticados, equilibrando
           transparência com o cuidado devido aos relatos.
         </p>
       </section>

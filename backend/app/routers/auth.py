@@ -27,7 +27,7 @@ _log = logging.getLogger(__name__)
 bp = Blueprint("auth", __name__)
 
 _MSG_ESQUECI = (
-    "Se existir uma conta com este e-mail, enviaremos em instantes as instruções "
+    "Se existir uma conta com este e-mail, enviaremos em breve as instruções "
     "para redefinir a senha."
 )
 
