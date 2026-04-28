@@ -2,7 +2,8 @@
 [build]
   base = "frontend"
   command = "npm ci && npm run build"
-  publish = "frontend/dist"
+  # Relativo à pasta `base` (não use `frontend/dist` — o Netlify acumula e vira `frontend/frontend/dist`).
+  publish = "dist"
 
 # React Router: qualquer rota (ex. /login) devolve o index.html; sem isto o Netlify mostra 404.
 [[redirects]]

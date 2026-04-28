@@ -166,7 +166,7 @@ O repositório tem na **raiz** `requirements.txt`, `.python-version` e `Procfile
 
 ### Netlify (só o front-end)
 
-O repositório inclui `netlify.toml` na **raiz**: o *build* corre em `frontend/`, a pasta publicada é `frontend/dist` e há *redirects* para o React Router (evita 404 em rotas como `/login`).
+O repositório inclui `netlify.toml` na **raiz**: o *build* corre em `frontend/`, a pasta publicada no Netlify é `dist` (relativa a `frontend/`, equivalente a `frontend/dist` no repo) e há *redirects* para o React Router (evita 404 em rotas como `/login`).
 
 No painel do Netlify → **Environment variables**, define:
 
