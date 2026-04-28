@@ -8,9 +8,6 @@ export default function Login() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const [reenviarEmail, setReenviarEmail] = useState('')
-  const [reenviarStatus, setReenviarStatus] = useState('')
-  const [reenviarLoad, setReenviarLoad] = useState(false)
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -68,46 +65,6 @@ export default function Login() {
           {loading ? 'Entrando…' : 'Entrar'}
         </button>
       </form>
-
-      <div className="form secondary-block">
-        <p className="muted small" id="reenviar-label">
-          Ainda sem confirmação de e-mail? Reenviamos o link.
-        </p>
-        <div className="row-inline">
-          <input
-            type="email"
-            name="reenviar"
-            autoComplete="email"
-            placeholder="O seu e-mail de cadastro"
-            value={reenviarEmail}
-            onChange={(e) => setReenviarEmail(e.target.value)}
-            aria-labelledby="reenviar-label"
-          />
-          <button
-            className="btn secondary"
-            type="button"
-            disabled={reenviarLoad || !reenviarEmail.trim()}
-            onClick={async () => {
-              setReenviarStatus('')
-              setReenviarLoad(true)
-              try {
-                const d = await api('/api/auth/reenviar-verificacao', {
-                  method: 'POST',
-                  json: { email: reenviarEmail.trim() },
-                })
-                if (d && d.detail) setReenviarStatus(String(d.detail))
-              } catch (e) {
-                setReenviarStatus(e instanceof Error ? e.message : 'Falha')
-              } finally {
-                setReenviarLoad(false)
-              }
-            }}
-          >
-            {reenviarLoad ? 'A enviar…' : 'Reenviar'}
-          </button>
-        </div>
-        {reenviarStatus ? <p className="muted small">{reenviarStatus}</p> : null}
-      </div>
 
       <p className="muted small">
         Não tem conta? <Link to="/cadastro">Cadastre-se</Link>

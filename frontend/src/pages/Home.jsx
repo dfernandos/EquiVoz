@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '../api/client'
+
+const CONTA_CRIADA_KEY = 'equivoz_conta_criada'
 import DashboardPanel from '../components/DashboardPanel'
 import { useAuth } from '../hooks/useAuth'
 
@@ -18,6 +20,19 @@ export default function Home() {
   const [dashboard, setDashboard] = useState(null)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(true)
+  const [contaCriadaMsg, setContaCriadaMsg] = useState('')
+
+  useEffect(() => {
+    try {
+      const m = sessionStorage.getItem(CONTA_CRIADA_KEY)
+      if (m) {
+        setContaCriadaMsg(m)
+        sessionStorage.removeItem(CONTA_CRIADA_KEY)
+      }
+    } catch {
+      /* ignore */
+    }
+  }, [])
 
   useEffect(() => {
     let cancelled = false
@@ -77,6 +92,12 @@ export default function Home() {
           )}
         </div>
       </header>
+
+      {contaCriadaMsg ? (
+        <div className="banner success" role="status" aria-live="polite">
+          {contaCriadaMsg}
+        </div>
+      ) : null}
 
       {error ? (
         <div className="banner error" role="alert" aria-live="assertive">

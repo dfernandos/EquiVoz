@@ -33,10 +33,6 @@ class LoginRequest(BaseModel):
     password: str
 
 
-class ReenviarVerificacaoRequest(BaseModel):
-    email: EmailStr
-
-
 class DenunciaCreate(BaseModel):
     title: str = Field(min_length=3, max_length=500)
     description: str = Field(min_length=10)
