@@ -63,6 +63,18 @@
   display: flex;
   align-items: center;
   gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.topbar-welcome {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--ev-nav-link);
+  max-width: 14rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .nav a {

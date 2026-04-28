@@ -9,7 +9,9 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int = 60 * 24
     # URL pública do front (link “esqueci a senha” no e-mail, sem barra no fim)
     app_public_url: str = "http://localhost:5173"
-    # SMTP opcional — redefinição de senha por e-mail; vazio = não envia (ver log abaixo)
+    # Brevo: chave de API (xkeysib-…). Se preenchida, o envio usa a API HTTPS (recomendado; não precisa de SMTP no Heroku).
+    brevo_api_key: str | None = None
+    # SMTP opcional — usado se BREVO_API_KEY estiver vazio; redefinição de senha por e-mail
     smtp_host: str | None = None
     smtp_port: int = 587
     smtp_user: str | None = None

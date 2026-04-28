@@ -1,3 +1,5 @@
+import os
+
 from flask import Flask, g, jsonify
 from flask_cors import CORS
 from sqlalchemy import inspect, text
@@ -82,6 +84,15 @@ def create_app(database_url: str | None = None) -> Flask:
         from app.database import configure_engine
 
         configure_engine(database_url)
+
+    effective = database_url or settings.database_url
+    if os.environ.get("DYNO") and "sqlite" in str(effective).lower():
+        raise RuntimeError(
+            "No Heroku o PostgreSQL é obrigatório. Adicione o add-on Heroku Postgres (recomendado) "
+            "ou defina a variável DATABASE_URL com postgresql+psycopg://... ou postgresql://... . "
+            "O SQLite no disco do dyno apaga os dados a cada deploy."
+        )
+
     engine = get_engine()
     Base.metadata.create_all(bind=engine)
     _ensure_user_email_verification_columns(engine)

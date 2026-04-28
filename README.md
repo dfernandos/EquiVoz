@@ -73,7 +73,7 @@ cp .env.example .env
 
 | Variável | Descrição |
 |----------|------------|
-| `DATABASE_URL` | **Opcional.** Se estiver vazio ou ausente, o sistema usa SQLite em `./equivoz.db`. Para PostgreSQL, use o formato do exemplo abaixo. Não duplique o nome `DATABASE_URL` na linha. |
+| `DATABASE_URL` | **Desenvolvimento:** use PostgreSQL (como no `.env.example`) ou, se omitir, SQLite em `./equivoz.db`. **Heroku:** é **obrigatório** PostgreSQL (add-on *Heroku Postgres* define `DATABASE_URL`); a app recusa subir com SQLite no dyno. Não duplique o nome `DATABASE_URL` na linha. |
 | `SECRET_KEY` | Obrigatório em produção: segredo para assinatura dos tokens JWT. |
 | `ALGORITHM` | Padrão `HS256`. |
 | `ACCESS_TOKEN_EXPIRE_MINUTES` | Validade do token (em minutos). |

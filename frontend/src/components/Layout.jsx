@@ -2,11 +2,13 @@ import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { setToken } from '../api/client'
 import { useColorMode } from '../context/ColorModeContext'
 import { useAuth } from '../hooks/useAuth'
+import { useUser } from '../hooks/useUser'
 
 export default function Layout() {
   const navigate = useNavigate()
   const location = useLocation()
   const loggedIn = useAuth()
+  const { user } = useUser()
   const { toggleDaltonismo, isDaltonismo } = useColorMode()
   const mainWide =
     location.pathname === '/' || location.pathname === '/denuncias' || location.pathname === '/sobre'
@@ -39,6 +41,11 @@ export default function Layout() {
           EquiVoz
         </Link>
         <nav className="nav" aria-label="Navegação principal">
+          {loggedIn && user?.name ? (
+            <span className="topbar-welcome" title={user.name}>
+              Bem-vindo, {user.name}
+            </span>
+          ) : null}
           <Link to="/sobre" aria-current={pathname === '/sobre' ? 'page' : undefined}>
             Sobre
           </Link>
