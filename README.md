@@ -164,6 +164,16 @@ O repositório tem na **raiz** `requirements.txt`, `.python-version` e `Procfile
    - `heroku config:set SECRET_KEY="um-segredo-longo-e-aleatório"`
 4. Ajustar **CORS** no código para o domínio do teu site em produção (ver secção seguinte); o front-end em static hosting pode ser feito à parte com `npm run build` e `VITE_API_URL` apontando para `https://<a-tua-app>.herokuapp.com`.
 
+### Netlify (só o front-end)
+
+O repositório inclui `netlify.toml` na **raiz**: o *build* corre em `frontend/`, a pasta publicada é `frontend/dist` e há *redirects* para o React Router (evita 404 em rotas como `/login`).
+
+No painel do Netlify → **Environment variables**, define:
+
+- `VITE_API_URL` = `https://<a-tua-app>.herokuapp.com` (URL da API, **sem** barra no fim)
+
+Depois de fazer *push* do `netlify.toml`, deixa o Netlify voltar a fazer *deploy*; o site deixa de mostrar a página "Page not found" genérica do Netlify.
+
 Comando local equivalente ao dyno: `gunicorn --chdir backend wsgi:app --bind 0.0.0.0:8000` (o Heroku usa a variável `PORT` automaticamente no `Procfile`).
 
 ---

@@ -1,0 +1,11 @@
+# Monorepo: a app Vite fica em frontend/ — sem isto o Netlify usa a raiz e o site fica sem index.html.
+[build]
+  base = "frontend"
+  command = "npm ci && npm run build"
+  publish = "frontend/dist"
+
+# React Router: qualquer rota (ex. /login) devolve o index.html; sem isto o Netlify mostra 404.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
