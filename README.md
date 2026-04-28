@@ -111,9 +111,9 @@ npm run dev
 
 Abra o endereço indicado pelo Vite (normalmente `http://localhost:5173`). As rotas começam por `/api/…` e são servidas em dev via proxy para o backend na **porta 8000**.
 
-**Variáveis (opcionais) no front:**
+**Variáveis no front:**
 
-- `VITE_API_URL` — URL base da API, se precisar de chamar o backend noutro host (por predefinição, em dev, usa o proxy com base relativa `''`).
+- `VITE_API_URL` — Em **desenvolvimento** (Vite) pode ficar vazio: o proxy manda `/api` para o backend local. No **build do Netlify** (ou outro *host* só com ficheiros estáticos) é **obrigatório**: URL da API no Heroku, por exemplo `https://o-nome.herokuapp.com`, **sem** barra no fim. Sem isto, o browser chama o próprio site em `/api/...` e obterás **404**.
 
 **Build de produção:**
 
@@ -173,11 +173,12 @@ O repositório tem na **raiz** `requirements.txt`, `.python-version` e `Procfile
 
 O repositório inclui `netlify.toml` na **raiz**: o *build* corre em `frontend/`, a pasta publicada no Netlify é `dist` (relativa a `frontend/`, equivalente a `frontend/dist` no repo) e há *redirects* para o React Router (evita 404 em rotas como `/login`).
 
-No painel do Netlify → **Environment variables**, define:
+No painel do Netlify → **Environment variables** → **Add a variable**:
 
-- `VITE_API_URL` = `https://<a-tua-app>.herokuapp.com` (URL da API, **sem** barra no fim)
+- **Key:** `VITE_API_URL`
+- **Value:** a URL pública do Heroku, ex.: `https://equivoz-0d910705aa02.herokuapp.com` (a tua app; **sem** barra no fim)
 
-Depois de fazer *push* do `netlify.toml`, deixa o Netlify voltar a fazer *deploy*; o site deixa de mostrar a página "Page not found" genérica do Netlify.
+**Site configuration → Build & deploy →** confirma que a variável está em *Production* (e *Preview* se usares) e força **Deploys → Trigger deploy → Clear cache and deploy**. O Vite só incorpora `VITE_` no *build*; alterar a variável sem novo deploy não basta.
 
 Comando local equivalente ao dyno: `gunicorn --chdir backend wsgi:app --bind 0.0.0.0:8000` (o Heroku usa a variável `PORT` automaticamente no `Procfile`).
 

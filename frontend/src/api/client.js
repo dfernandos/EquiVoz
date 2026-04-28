@@ -17,6 +17,17 @@ export function setToken(token) {
  * @param {RequestInit & { json?: object }} options
  */
 export async function api(path, options = {}) {
+  // Em produção (ex.: Netlify) o pedido tem de ir ao Heroku. Sem VITE_API_URL, /api/... cai no site estático (404 / HTML).
+  if (
+    path.startsWith('/api') &&
+    !import.meta.env.DEV &&
+    !(import.meta.env.VITE_API_URL || '').toString().trim()
+  ) {
+    throw new Error(
+      'Configuração em falta: defina a variável VITE_API_URL no Netlify (URL da API no Heroku, sem barra no fim) e volte a fazer o deploy do site.',
+    )
+  }
+
   const { json, ...fetchOpts } = options
   const headers = new Headers(fetchOpts.headers)
 
@@ -41,11 +52,24 @@ export async function api(path, options = {}) {
     }
   }
 
+  if (res.ok && typeof data === 'string' && /^\s*</.test(data)) {
+    throw new Error(
+      'A API devolveu HTML em vez de JSON. No Netlify, defina VITE_API_URL com a URL do Heroku e faça um novo build.',
+    )
+  }
+
   if (!res.ok) {
     const detail =
       data && typeof data === 'object' && 'detail' in data
         ? formatDetail(data.detail)
         : res.statusText
+    if (res.status === 404 && path.startsWith('/api')) {
+      throw new Error(
+        detail && detail !== 'Not Found'
+          ? String(detail)
+          : 'API não encontrada (404). Confirme VITE_API_URL no Netlify e se a API no Heroku está a correr.',
+      )
+    }
     throw new Error(detail || `Erro ${res.status}`)
   }
 
