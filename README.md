@@ -154,6 +154,20 @@ O workflow **CI EquiVoz** (`.github/workflows/ci.yml`) corre em *push* e *pull r
 
 ---
 
+## Deploy no Heroku (API / backend)
+
+O repositório tem na **raiz** `requirements.txt`, `runtime.txt` e `Procfile` para o *buildpack* Python do Heroku detetar a app; o código continua em `backend/`.
+
+1. **Comitar e enviar** estes ficheiros: `requirements.txt`, `runtime.txt`, `Procfile`, `backend/wsgi.py`.
+2. Na app Heroku: adicionar o extra **Heroku Postgres** (ou definir `DATABASE_URL` manualmente). O Heroku injeta `DATABASE_URL` (muitas vezes `postgres://...`); a aplicação já normaliza para o SQLAlchemy.
+3. Definir variáveis, por exemplo:
+   - `heroku config:set SECRET_KEY="um-segredo-longo-e-aleatório"`
+4. Ajustar **CORS** no código para o domínio do teu site em produção (ver secção seguinte); o front-end em static hosting pode ser feito à parte com `npm run build` e `VITE_API_URL` apontando para `https://<a-tua-app>.herokuapp.com`.
+
+Comando local equivalente ao dyno: `gunicorn --chdir backend wsgi:app --bind 0.0.0.0:8000` (o Heroku usa a variável `PORT` automaticamente no `Procfile`).
+
+---
+
 ## Segurança e notas
 
 - Nunca comite ficheiro **`.env`** com segredos reais (use `.env.example` só como modelo).

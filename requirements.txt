@@ -1,0 +1,2 @@
+# Raiz do repositório: o buildpack Python do Heroku lê este ficheiro.
+-r backend/requirements.txt
