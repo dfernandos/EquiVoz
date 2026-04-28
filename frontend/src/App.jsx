@@ -8,6 +8,7 @@ import Home from './pages/Home'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Sobre from './pages/Sobre'
+import VerifyEmail from './pages/VerifyEmail'
 
 function PrivateRoute({ children }) {
   const token = getToken()
@@ -23,6 +24,7 @@ export default function App() {
         <Route path="/sobre" element={<Sobre />} />
         <Route path="/login" element={<Login />} />
         <Route path="/cadastro" element={<Register />} />
+        <Route path="/verificar-email" element={<VerifyEmail />} />
         <Route
           path="/denuncia"
           element={

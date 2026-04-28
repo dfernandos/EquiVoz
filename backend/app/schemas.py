@@ -14,6 +14,7 @@ class UserPublic(BaseModel):
     email: str
     name: str
     created_at: datetime
+    email_verified: bool
 
     model_config = {"from_attributes": True}
 
@@ -30,6 +31,10 @@ class TokenPayload(BaseModel):
 class LoginRequest(BaseModel):
     email: EmailStr
     password: str
+
+
+class ReenviarVerificacaoRequest(BaseModel):
+    email: EmailStr
 
 
 class DenunciaCreate(BaseModel):

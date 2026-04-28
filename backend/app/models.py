@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import DateTime, Float, ForeignKey, Integer, String, Text
+from sqlalchemy import Boolean, DateTime, Float, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
@@ -14,6 +14,9 @@ class User(Base):
     hashed_password: Mapped[str] = mapped_column(String(255), nullable=False)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    email_verified: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    verification_token_hash: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    verification_token_expires_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
     denuncias: Mapped[list["Denuncia"]] = relationship("Denuncia", back_populates="user")
 

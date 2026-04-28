@@ -1,10 +1,45 @@
 from flask import Flask, g, jsonify
 from flask_cors import CORS
-from sqlalchemy import text
+from sqlalchemy import inspect, text
 
 from app.database import Base, get_engine, get_session_factory
 from app.deps import ApiError
 from app.routers import auth, denuncias, geocoding
+
+
+def _ensure_user_email_verification_columns(engine) -> None:
+    """Adiciona colunas de verificação de e-mail a `users` em BDs antigos. Contas anteriores à feature ficam com e-mail “verificado” (uma vez)."""
+    if "users" not in inspect(engine).get_table_names():
+        return
+    cols = {c["name"] for c in inspect(engine).get_columns("users")}
+    is_sqlite = engine.dialect.name == "sqlite"
+    herdou_contas_existentes = "email_verified" not in cols
+    with engine.begin() as conn:
+        if herdou_contas_existentes:
+            if is_sqlite:
+                conn.execute(
+                    text("ALTER TABLE users ADD COLUMN email_verified INTEGER NOT NULL DEFAULT 0")
+                )
+            else:
+                conn.execute(
+                    text("ALTER TABLE users ADD COLUMN email_verified BOOLEAN NOT NULL DEFAULT false")
+                )
+        if "verification_token_hash" not in cols:
+            conn.execute(
+                text("ALTER TABLE users ADD COLUMN verification_token_hash VARCHAR(64)")
+            )
+        if "verification_token_expires_at" not in cols:
+            if is_sqlite:
+                conn.execute(text("ALTER TABLE users ADD COLUMN verification_token_expires_at DATETIME"))
+            else:
+                conn.execute(
+                    text("ALTER TABLE users ADD COLUMN verification_token_expires_at TIMESTAMPTZ")
+                )
+        if herdou_contas_existentes:
+            if is_sqlite:
+                conn.execute(text("UPDATE users SET email_verified = 1"))
+            else:
+                conn.execute(text("UPDATE users SET email_verified = true"))
 
 
 def create_app(database_url: str | None = None) -> Flask:
@@ -14,6 +49,7 @@ def create_app(database_url: str | None = None) -> Flask:
         configure_engine(database_url)
     engine = get_engine()
     Base.metadata.create_all(bind=engine)
+    _ensure_user_email_verification_columns(engine)
     if engine.dialect.name == "sqlite":
         with engine.begin() as conn:
             r = conn.execute(text("PRAGMA table_info(denuncias)"))

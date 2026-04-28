@@ -75,6 +75,11 @@ cp .env.example .env
 | `SECRET_KEY` | Obrigatório em produção: segredo para assinatura de tokens JWT. |
 | `ALGORITHM` | Padrão `HS256`. |
 | `ACCESS_TOKEN_EXPIRE_MINUTES` | Validade do token (minutos). |
+| `APP_PUBLIC_URL` | URL do site (Netlify, etc.) para o **link de confirmação de e-mail** no registo. Sem isto, o link no e-mail pode apontar para `localhost`. |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM` | Envio de e-mail transacional (confirmação de conta). Se `SMTP_HOST` estiver vazio, o registo conclui-se na API mas **nenhum e-mail** é enviado (útil para testes locais; em produção configure um serviço SMTP). |
+| `VERIFICACAO_EMAIL_HORAS` | Validade do link de confirmação (padrão 48). |
+
+**Confirmação de e-mail:** após o cadastro, a API envia um link (`/verificar-email?token=…` no front). Só após abrir o link o utilizador pode fazer **login** (`/api/auth/verificar-email`, reenvio em `POST /api/auth/reenviar-verificacao`).
 
 **Exemplos de `DATABASE_URL`:**
 
