@@ -6,6 +6,7 @@ from sqlalchemy import String, case, func, literal, or_
 
 from app.database import get_db
 from app.deps import get_current_user, get_current_user_optional
+from app.email_smtp import send_denuncia_cadastro_confirmacao
 from app.models import Denuncia, User
 from app.schemas import DenunciaCreate, DenunciaPublic
 from app.violation_types import VIOLATION_LABELS, tipos_violacao_payload
@@ -234,6 +235,21 @@ def create_denuncia():
     db.add(denuncia)
     db.commit()
     db.refresh(denuncia)
+
+    send_denuncia_cadastro_confirmacao(
+        destinatario_email=current_user.email,
+        nome_usuario=current_user.name,
+        denuncia_id=denuncia.id,
+        titulo=denuncia.title,
+        tipo_violacao_exibicao=VIOLATION_LABELS.get(
+            denuncia.violation_type, denuncia.violation_type
+        ),
+        empresa=denuncia.empresa,
+        ocorrido_em=denuncia.occurred_at,
+        local_texto=denuncia.location_text,
+        descricao=denuncia.description,
+    )
+
     return jsonify(DenunciaPublic.model_validate(denuncia).model_dump(mode="json")), 201
 
 
