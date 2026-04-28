@@ -1,0 +1,14 @@
+spring-backend/target/
+
+backend/.venv/
+backend/equivoz.db
+backend/.env
+frontend/node_modules/
+frontend/dist/
+__pycache__/
+.pytest_cache/
+e2e/.venv/
+
+*.py[cod]
+.Python
+.DS_Store

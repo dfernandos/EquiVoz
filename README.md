@@ -1,0 +1,167 @@
+# EquiVoz
+
+Aplicação web para **registo e consulta pública** de ocorrências relacionadas com **discriminação e violação de direitos**, com foco em **minorias sociais**. O sistema oferece autenticação, criação e gestão de denúncias, **estatísticas agregadas** (totais, tendências por mês, tipos de violação, mapa), e apoio à localização (georreferenciação) para análise espacial.
+
+Este repositório contém o **monólito lógico** do produto: API em **Python (Flask)** e interface em **React (Vite)**.
+
+---
+
+## Arquitetura (resumo)
+
+| Camada | Tecnologia | Função |
+|--------|------------|--------|
+| API REST | Flask 3, SQLAlchemy 2, Pydantic | Autenticação JWT, CRUD de denúncias, estatísticas, integração de geocoding |
+| Base de dados | **SQLite** (ficheiro local) ou **PostgreSQL** (variável de ambiente) | Persistência; o esquema é criado ao subir a API |
+| Front-end | React 19, React Router, Leaflet, Recharts | Páginas, mapa, gráficos, modos de cor acessíveis |
+| Comunicação | `fetch` + proxy do Vite em dev | Chamadas a rotas prefixadas com `/api` |
+
+Em desenvolvimento, o **Vite** reencaminha `/api` para `http://127.0.0.1:8000` (ver `frontend/vite.config.js`).
+
+---
+
+## Estrutura de pastas
+
+```
+PythonExampleProject/
+├── backend/                 # API Flask
+│   ├── app/
+│   │   ├── main.py         # fábrica da app, CORS, tabelas na arranque
+│   │   ├── config.py       # Settings (pydantic-settings) e .env
+│   │   ├── database.py     # engine e sessões
+│   │   ├── models.py       # User, Denuncia
+│   │   ├── routers/        # auth, denuncias, geocoding
+│   │   └── …
+│   ├── tests/              # Pytest
+│   ├── requirements.txt
+│   └── .env.example        # modelo de variáveis (copie para .env)
+├── frontend/               # SPA React
+│   ├── src/                # componentes, páginas, API client
+│   ├── vite.config.js      # proxy /api e Vitest
+│   └── package.json
+├── .github/workflows/      # CI (GitHub Actions)
+└── README.md
+```
+
+---
+
+## Requisitos
+
+- **Python** 3.12+ (recomendado; o CI usa 3.12)
+- **Node.js** 20+ e npm (para o frontend)
+- **PostgreSQL** (opcional): só se quiser deixar de usar SQLite; no macOS com Homebrew, o superutilizador por omissão costuma ser o **teu** utilizador do macOS, não o role `postgres`
+
+---
+
+## Instalação e execução (desenvolvimento)
+
+### 1. Backend (API)
+
+```bash
+cd backend
+python3 -m venv .venv
+source .venv/bin/activate          # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+**Variáveis de ambiente** — copie o modelo e ajuste:
+
+```bash
+cp .env.example .env
+```
+
+| Variável | Descrição |
+|----------|------------|
+| `DATABASE_URL` | **Opcional.** Se estiver vazio ou em falta, o sistema usa SQLite em `./equivoz.db`. Para PostgreSQL, use o formato do exemplo abaixo. Não duplique o nome `DATABASE_URL` na linha. |
+| `SECRET_KEY` | Obrigatório em produção: segredo para assinatura de tokens JWT. |
+| `ALGORITHM` | Padrão `HS256`. |
+| `ACCESS_TOKEN_EXPIRE_MINUTES` | Validade do token (minutos). |
+
+**Exemplos de `DATABASE_URL`:**
+
+- SQLite (implícito se não definir nada, ou explícito): `sqlite:///./equivoz.db`
+- PostgreSQL (psycopg3): `postgresql+psycopg://USUÁRIO:SENHA@localhost:5432/equivoz`  
+- No **macOS** com Homebrew, provavelmente precisará de algo como `postgresql+psycopg://O_TEU_WHOAMI@localhost:5432/equivoz` (sem a role `postgres` a menos que a crie de propósito).
+
+Crie a base no Postgres se aplicável (ex.: `createdb equivoz`).
+
+**Subir o servidor (porta 8000):**
+
+```bash
+python -m app.main
+```
+
+Teste: abra `http://127.0.0.1:8000/api/health` e confirme JSON com `"status": "ok"`.
+
+---
+
+### 2. Frontend
+
+Noutro terminal:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Abra o endereço indicado pelo Vite (normalmente `http://localhost:5173`). As rotas começam por `/api/…` e são servidas em dev via proxy para o backend na **porta 8000**.
+
+**Variáveis (opcionais) no front:**
+
+- `VITE_API_URL` — URL base da API, se precisar de chamar o backend noutro host (por predefinição, em dev, usa o proxy com base relativa `''`).
+
+**Build de produção:**
+
+```bash
+npm run build
+```
+
+Gera `frontend/dist/`. Nesse cenário, configure o `VITE_API_URL` (ou o servidor a servir a SPA) para o endpoint real da API, e o gateway/CORS de acordo.
+
+---
+
+## Testes
+
+**Backend (na raiz de `backend/`, venv ativo):**
+
+```bash
+pytest
+```
+
+**Frontend:**
+
+```bash
+cd frontend
+npm run test
+```
+
+**Lint (frontend):**
+
+```bash
+npm run lint
+```
+
+---
+
+## Integração contínua (GitHub Actions)
+
+O workflow **CI EquiVoz** (`.github/workflows/ci.yml`) corre em *push* e *pull request* às branches `main`, `master` e `develop`, e:
+
+1. **Backend:** instala dependências Python, executa `pytest`.
+2. **Frontend:** `npm ci`, `npm run lint`, `npm run test`, `npm run build`.
+
+É necessário que o repositório exista no GitHub com os ficheiros comitados; a aba *Actions* mostra o histórico.
+
+---
+
+## Segurança e notas
+
+- Nunca comite ficheiro **`.env`** com segredos reais (use `.env.example` só como modelo).
+- Em **produção**, use `SECRET_KEY` forte, HTTPS, e PostgreSQL (ou outro SGBD suportado) com cópia de segurança.
+- CORS na API (em `app/main.py`) restringe origens de desenvolvimento; em deploy, ajuste para o(s) domínio(s) do site.
+
+---
+
+## Licença e apoio
+
+Código do projecto de exemplo; ajuste licença e suporte consoante a vossa equipa. Para problemas técnicos, abra *issues* no repositório ou reúna a equipa interna de desenvolvimento.
