@@ -196,6 +196,20 @@ No painel do Netlify → **Environment variables** → **Add a variable**:
 
 Comando local equivalente ao dyno: `gunicorn --chdir backend wsgi:app --bind 0.0.0.0:8000` (o Heroku usa a variável `PORT` automaticamente no `Procfile`).
 
+### GitHub Pages (front estático, API no Heroku)
+
+Dá para publicar o **mesmo** build do Vite no **GitHub Pages** (grátis no plano padrão de repositório), apontando para a API no Heroku.
+
+1. **Repositório** → *Settings* → *Pages* → *Source:* **GitHub Actions** (não “Deploy from a branch” antigo, se o fluxo for o novo).
+2. **Secrets and variables** → *Actions* → crie o segredo **`VITE_API_URL`** com a URL **https://sua-app.herokuapp.com** (sem barra no fim), igual ao Netlify.
+3. No **Heroku**, inclua a origem do GitHub Pages em **`CORS_ORIGINS`**, por exemplo:
+   - `https://SEU_USUARIO.github.io` (repositório `usuario.github.io`), ou
+   - `https://SEU_USUARIO.github.io/NOME_DO_REPO` (repositório normal), use o endereço exato do browser (respeitando maiúsculas/minúsculas do nome do repo, se for o caso).
+4. Faça *push* na `main` (ou use *Actions* → *Deploy GitHub Pages* → *Run workflow*). O workflow `deploy-github-pages.yml` gera o `dist` com `VITE_BASE=/NOME_DO_REPO/` automaticamente, copia `index.html` para `404.html` (rotas do React) e cria `.nojekyll`.
+5. O site fica em **`https://SEU_USUARIO.github.io/NOME_DO_REPO/`** (com barra no fim no guia; o Vite ajusta *assets* e o `BrowserRouter` usa o *basename*).
+
+A API continua no Heroku; só o front fica no domínio `github.io`.
+
 ---
 
 ## Segurança e notas

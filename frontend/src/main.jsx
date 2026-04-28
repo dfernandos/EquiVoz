@@ -6,10 +6,13 @@ import './index.css'
 import App from './App.jsx'
 import { ColorModeProvider } from './context/ColorModeContext.jsx'
 
+const baseUrl = import.meta.env.BASE_URL || '/'
+const routerBasename = baseUrl === '/' ? undefined : baseUrl.replace(/\/$/, '')
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <ColorModeProvider>
-      <BrowserRouter>
+      <BrowserRouter basename={routerBasename}>
         <App />
       </BrowserRouter>
     </ColorModeProvider>
