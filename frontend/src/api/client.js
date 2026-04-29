@@ -22,7 +22,7 @@ export async function api(path, options = {}) {
   if (path.startsWith('/api') && !import.meta.env.DEV) {
     if (!baseEnv) {
       throw new Error(
-        'Falta VITE_API_URL: no build (GitHub Actions, Netlify, etc.) defina a URL da API no Heroku (ex.: https://nomedapp.herokuapp.com, sem / no fim) e volte a publicar o site.',
+        'O site foi publicado sem a URL da API (VITE_API_URL) no build. No GitHub: Actions → variáveis/segredos com a URL do Heroku (…herokuapp.com, sem /). Volte a correr o deploy; no browser use recarregar sem cache (Ctrl+Shift+R) ou janela anónima. Se ainda vir a palavra "Netlify" nesta mensagem, o browser está a servir JavaScript antigo em cache.',
       )
     }
     try {

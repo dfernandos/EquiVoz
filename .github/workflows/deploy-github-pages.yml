@@ -29,6 +29,10 @@ jobs:
     # Nome do Environment (o valor tem de ser repo var/secret, não a variável “dentro” de equivoz).
     environment:
       name: ${{ vars.GHA_VITE_GITHUB_ENV || secrets.GHA_VITE_GITHUB_ENV || 'github-pages' }}
+    # Disponibilizar VITE_* a todo o job (evita falhas subtis se algum passo não herdar env do step).
+    env:
+      VITE_API_URL: ${{ secrets.VITE_API_URL || vars.VITE_API_URL }}
+      VITE_BASE: /${{ github.event.repository.name }}/
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -41,22 +45,22 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
 
       - name: Verificar VITE_API_URL
-        env:
-          VITE_CHECK: ${{ secrets.VITE_API_URL || vars.VITE_API_URL }}
         run: |
-          if [ -z "${VITE_CHECK:-}" ] || [ "${VITE_CHECK}" = "" ]; then
+          if [ -z "${VITE_API_URL:-}" ]; then
             echo '::error::VITE_API_URL vazio. (1) URL do Heroku em *Repository* ou no Environment escolhido. (2) GHA_VITE_GITHUB_ENV (só o nome, ex. equivoz) em *Repository* **Variables** ou **Secrets** — nunca só dentro do Environment; o valor do segredo/variável tem de ser a palavra equivoz, não a URL.'
             exit 1
           fi
 
       - name: Instalar e build
         working-directory: frontend
-        env:
-          VITE_API_URL: ${{ secrets.VITE_API_URL || vars.VITE_API_URL }}
-          VITE_BASE: /${{ github.event.repository.name }}/
         run: |
           npm ci
           npm run build
+          # Se a API não for *.herokuapp.com, ajusta ou comenta este bloco
+          if ! grep -R --include='*.js' -q 'herokuapp' dist/ 2>/dev/null; then
+            echo '::error::O dist/ não contém "herokuapp" no JS — o build não embuteu a URL da API. Confirme VITE_API_URL no job de build.'
+            exit 1
+          fi
           cp dist/index.html dist/404.html
           touch dist/.nojekyll
 
