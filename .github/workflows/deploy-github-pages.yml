@@ -1,7 +1,9 @@
 # Hospeda o build do Vite no GitHub Pages.
-# - VITE_API_URL: segredo/variável do repositório OU variável num GitHub "Environment"
-#   Se VITE estiver noutro ambiente que não "github-pages", defina a variável de repositório
-#   GHA_VITE_GITHUB_ENV = nome_desse_ambiente (ex.: equivoz).
+# - VITE_API_URL: no segredo/variáveis *do repositório* ou numa env (equivoz, etc.).
+# - GHA_VITE_GITHUB_ENV: SÓ como variável de *repositório* (aba Variables → Repository
+#   variables), nunca “dentro” de um Environment — o workflow precisa do nome da env
+#   antes de a puder carregar (não podes pôr este nome na própria env).
+#   Valor: ex. equivoz (igual ao nome do teu ambiente se VITE for só aí).
 # - CORS no Heroku: https://<usuario>.github.io
 name: Deploy GitHub Pages (front-end)
 
@@ -25,9 +27,9 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    # `vars`/`secrets` de VITE_API_URL dependem do Environment. Por defeito usamos o ambiente
-    # "github-pages". Se tiveres VITE só noutro ambiente (ex. "equivoz"), defina a variável de
-    # repositório GHA_VITE_GITHUB_ENV com esse nome (a variável tem de existir a nível de repositório).
+    # `environment: name: ${{ vars.GHA_VITE_GITHUB_ENV }}` só lê *Repository* variables; env vars
+    # (mesmo de "equivoz") vêm depois. Se GHA_VITE_GITHUB_ENV estiver só *dentro* de equivoz, fica
+    # vazio → cai em github-pages e perde o VITE.
     environment:
       name: ${{ vars.GHA_VITE_GITHUB_ENV || 'github-pages' }}
     steps:
@@ -46,7 +48,7 @@ jobs:
           VITE_CHECK: ${{ secrets.VITE_API_URL || vars.VITE_API_URL }}
         run: |
           if [ -z "${VITE_CHECK:-}" ] || [ "${VITE_CHECK}" = "" ]; then
-            echo '::error::Defina VITE_API_URL: Settings → Actions → (segredo ou variável do repositório) com a URL do Heroku, ou crie a variável no teu ambiente. Se o VITE estiver num ambiente (ex. equivoz) e não for "github-pages", cria a variável de repositório GHA_VITE_GITHUB_ENV = nome_esse_ambiente. URL sem / no fim.' 
+            echo '::error::VITE_API_URL vazio neste build. (1) Mete a URL do Heroku (sem / no fim) em *Repository* variables/Secrets OU no teu ambiente, e (2) se usas o ambiente "equivoz", GHA_VITE_GITHUB_ENV tem de estar em *Repository* variables = equivoz, não na secção "Environment" desse ambiente; ou duplica VITE_API_URL a nível de repositório.'
             exit 1
           fi
 
