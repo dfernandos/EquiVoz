@@ -1,9 +1,8 @@
 # Hospeda o build do Vite no GitHub Pages.
-# - VITE_API_URL: no segredo/variáveis *do repositório* ou numa env (equivoz, etc.).
-# - GHA_VITE_GITHUB_ENV: SÓ como variável de *repositório* (aba Variables → Repository
-#   variables), nunca “dentro” de um Environment — o workflow precisa do nome da env
-#   antes de a puder carregar (não podes pôr este nome na própria env).
-#   Valor: ex. equivoz (igual ao nome do teu ambiente se VITE for só aí).
+# - VITE_API_URL: segredo/variável *do repositório* ou variável num Environment (ex. equivoz).
+# - Nome do Environment do job: vars ou secrets *do repositório* GHA_VITE_GITHUB_ENV = p.ex. equivoz
+#   (não confundir com a URL do Heroku). Segredos não aparecem em `vars` — o workflow lê
+#   vars.GHA_VITE_GITHUB_ENV || secrets.GHA_VITE_GITHUB_ENV.
 # - CORS no Heroku: https://<usuario>.github.io
 name: Deploy GitHub Pages (front-end)
 
@@ -27,11 +26,9 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    # `environment: name: ${{ vars.GHA_VITE_GITHUB_ENV }}` só lê *Repository* variables; env vars
-    # (mesmo de "equivoz") vêm depois. Se GHA_VITE_GITHUB_ENV estiver só *dentro* de equivoz, fica
-    # vazio → cai em github-pages e perde o VITE.
+    # Nome do Environment (o valor tem de ser repo var/secret, não a variável “dentro” de equivoz).
     environment:
-      name: ${{ vars.GHA_VITE_GITHUB_ENV || 'github-pages' }}
+      name: ${{ vars.GHA_VITE_GITHUB_ENV || secrets.GHA_VITE_GITHUB_ENV || 'github-pages' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -48,7 +45,7 @@ jobs:
           VITE_CHECK: ${{ secrets.VITE_API_URL || vars.VITE_API_URL }}
         run: |
           if [ -z "${VITE_CHECK:-}" ] || [ "${VITE_CHECK}" = "" ]; then
-            echo '::error::VITE_API_URL vazio neste build. (1) Mete a URL do Heroku (sem / no fim) em *Repository* variables/Secrets OU no teu ambiente, e (2) se usas o ambiente "equivoz", GHA_VITE_GITHUB_ENV tem de estar em *Repository* variables = equivoz, não na secção "Environment" desse ambiente; ou duplica VITE_API_URL a nível de repositório.'
+            echo '::error::VITE_API_URL vazio. (1) URL do Heroku em *Repository* ou no Environment escolhido. (2) GHA_VITE_GITHUB_ENV (só o nome, ex. equivoz) em *Repository* **Variables** ou **Secrets** — nunca só dentro do Environment; o valor do segredo/variável tem de ser a palavra equivoz, não a URL.'
             exit 1
           fi
 
