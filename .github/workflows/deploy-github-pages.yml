@@ -1,8 +1,7 @@
 # Hospeda o build do Vite no GitHub Pages.
 # - VITE_API_URL: segredo/variável *do repositório* ou variável num Environment (ex. equivoz).
-# - Nome do Environment do job: vars ou secrets *do repositório* GHA_VITE_GITHUB_ENV = p.ex. equivoz
-#   (não confundir com a URL do Heroku). Segredos não aparecem em `vars` — o workflow lê
-#   vars.GHA_VITE_GITHUB_ENV || secrets.GHA_VITE_GITHUB_ENV.
+# - GHA_VITE_GITHUB_ENV: tem de ser *Repository variable* (= nome do ambiente, ex. equivoz). O
+#   GitHub não permite `secrets` em `job.environment.name` — não uses Secret para isto.
 # - CORS no Heroku: https://<usuario>.github.io
 name: Deploy GitHub Pages (front-end)
 
@@ -26,9 +25,9 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    # Nome do Environment (o valor tem de ser repo var/secret, não a variável “dentro” de equivoz).
+    # Só `vars` aqui (não `secrets` — a API do Actions não deixa nesse campo).
     environment:
-      name: ${{ vars.GHA_VITE_GITHUB_ENV || secrets.GHA_VITE_GITHUB_ENV || 'github-pages' }}
+      name: ${{ vars.GHA_VITE_GITHUB_ENV || 'github-pages' }}
     # Disponibilizar VITE_* a todo o job (evita falhas subtis se algum passo não herdar env do step).
     env:
       VITE_API_URL: ${{ secrets.VITE_API_URL || vars.VITE_API_URL }}
@@ -47,7 +46,7 @@ jobs:
       - name: Verificar VITE_API_URL
         run: |
           if [ -z "${VITE_API_URL:-}" ]; then
-            echo '::error::VITE_API_URL vazio. (1) URL do Heroku em *Repository* ou no Environment escolhido. (2) GHA_VITE_GITHUB_ENV (só o nome, ex. equivoz) em *Repository* **Variables** ou **Secrets** — nunca só dentro do Environment; o valor do segredo/variável tem de ser a palavra equivoz, não a URL.'
+            echo '::error::VITE_API_URL vazio. (1) URL do Heroku em *Repository* ou no Environment. (2) GHA_VITE_GITHUB_ENV: *Repository* **Variables** (não Secret) = equivoz, se o VITE estiver nesse ambiente; nunca só dentro do Environment. Valor: a palavra equivoz, não a URL do Heroku.'
             exit 1
           fi
 
